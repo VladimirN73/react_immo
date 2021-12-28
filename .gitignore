@@ -2,6 +2,7 @@
 
 # custom
 *.bak
+/srcx
 
 # defaults  
 
