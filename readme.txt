@@ -1,8 +1,10 @@
 TODO
+select CSS (bootstrap?)
 add simple/initial test
 add git actions (CI & CD)
 add azure hosting
 automated deploy to azure (static page)
+add PWA
 
 ----------------------------
 INFO
