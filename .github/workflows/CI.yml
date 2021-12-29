@@ -4,7 +4,12 @@
 name: CI
 
 on: 
-  workflow_dispatch
+  workflow_dispatch:
+    inputs:
+      comment:
+        description: 'a comment'
+        required: false
+        default: 'manual run'
   push:
     branches: [ main, dev ]
   pull_request:
