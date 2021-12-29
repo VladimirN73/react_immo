@@ -53,7 +53,7 @@ jobs:
         name: app
         
     - name: Display structure of downloaded files
-        run: ls -R
+      run: ls -R
         
     - name: Azure login
       uses: azure/login@v1
@@ -67,8 +67,8 @@ jobs:
         path: ./app
         
     - name: Display structure of downloaded files
-        run: ls -R
-        working-directory: ./app
+      run: ls -R
+      working-directory: ./app
           
     - name: Upload to blob storage
       uses: azure/CLI@v1
