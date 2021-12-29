@@ -14,9 +14,9 @@ on:
 
 
 env:
-  AZURE_WEBAPP_NAME: your-app-name    # set this to your application's name
-  AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
-  NODE_VERSION: '14.x'                # set this to the node version to use
+  AZURE_STORAGE_NAME: 'immo'
+  AZURE_CREDS: ${{ secrets.AZURE_CREDENTIALS_960640___bee040e7}}
+  NODE_VERSION: '14.x'                
 
 
 jobs:
@@ -50,13 +50,13 @@ jobs:
     - name: Azure login
       uses: azure/login@v1
       with:
-          creds: ${{ secrets.AZURE_CLIENT_ID }}
+          creds: ${{ env.AZURE_CREDS }}
           
     - name: Upload to blob storage
       uses: azure/CLI@v1
       with:
         inlineScript: |
-            az storage blob upload-batch --account-name immo --auth-mode key -d '$web' -s .
+            az storage blob upload-batch --account-name {{env.AZURE_STORAGE_NAME}} --auth-mode key -d '$web' -s .
             
     - name: logout
       run: |
