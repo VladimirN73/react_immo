@@ -51,6 +51,12 @@ jobs:
       uses: azure/login@v1
       with:
           creds: ${{ env.AZURE_CREDS }}
+        
+    - name: download    
+    - uses: actions/download-artifact@v2
+      with:
+        name: app
+        path: ./app
           
     - name: Upload to blob storage
       uses: azure/CLI@v1
