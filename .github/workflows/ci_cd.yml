@@ -1,0 +1,79 @@
+#
+# 
+#
+# History
+# 30.12.21 created
+#
+
+name: CI&CD
+
+on: 
+  pull_request:
+    branches: [ main ]
+  push:
+  workflow_dispatch:
+
+env:
+  AZURE_STORAGE_NAME: 'immo'
+  AZURE_CREDS: ${{ secrets.AZURE_CREDENTIALS_960640___bee040e7}}
+  NODE_VERSION: '14.x'     
+
+jobs:
+  build:
+  
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: npm install, build and test
+      run: |
+        npm ci # similar to npm install, but uses package-lock.json
+        npm run build
+        npm test
+
+    - name: Upload artifact for deployment job
+      uses: actions/upload-artifact@v2
+      with:
+        name: app
+        path: ./build        
+    
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: build
+    steps:   
+        
+    - name: Azure login
+      uses: azure/login@v1
+      with:
+          creds: ${{ env.AZURE_CREDS }}
+        
+    - name: download    
+      uses: actions/download-artifact@v2
+      with:
+        name: app
+        path: ./app
+        
+    - name: Display structure of downloaded files
+      run: ls -R
+      working-directory: ./app
+          
+    - name: Upload to blob storage
+      uses: azure/CLI@v1
+      with:
+        inlineScript: |
+            az storage blob upload-batch --account-name ${{env.AZURE_STORAGE_NAME}} --auth-mode key -d '$web' -s ./app
+            
+    - name: logout
+      run: |
+            az logout
+      if: always()
+    
