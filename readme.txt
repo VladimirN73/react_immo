@@ -13,7 +13,7 @@ npm start
 
 ----------------------------
 History (newest on top)
-
+31.12.21 add ci_cd.yml, create dev branch
 28.12.21 created
 
 add tests https://jestjs.io/docs/tutorial-react
