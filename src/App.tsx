@@ -1,14 +1,18 @@
-import './App.css';
-import * as components from './components/components';
+import "./App.css";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+import BodyElement from "./components/Body";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 function App() {
   return (
     <div className="App">
+      <Header />
       v 0.0.5 is running
-      <components.ScreenCommon />
+      <BodyElement />
+      <Footer />
     </div>
   );
 }
 
 export default App;
-

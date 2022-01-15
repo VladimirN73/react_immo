@@ -1,0 +1,15 @@
+
+{ 
+
+  "overrides": [
+    {
+      "files": ["*.tsx", "*.ts"],
+      "options": {
+        "tabWidth": 2,
+        "endOfLine": "crlf",
+        "printWidth": 90,
+        "semi": true
+      }
+    }
+  ]
+}
