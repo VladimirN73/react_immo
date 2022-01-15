@@ -25,7 +25,8 @@ on:
 env:
   AZURE_STORAGE_NAME_PROD: 'immo'
   AZURE_STORAGE_NAME_DEV:  'immodev'
-  AZURE_CREDS: ${{ secrets.AZURE_CREDENTIALS_960640___bee040e7}}
+  AZURE_CREDS_PROD: ${{ secrets.AZURE_CREDENTIALS_960640___bee040e7}}
+  AZURE_CREDS_DEV:  ${{ secrets.AZURE_CRED_DEV}}  
   NODE_VERSION: '14.x'     
 
 jobs:
@@ -64,7 +65,7 @@ jobs:
     - name: Azure login
       uses: azure/login@v1
       with:
-          creds: ${{ env.AZURE_CREDS }}
+          creds: ${{ env.AZURE_CREDS_PROD }}
         
     - name: download    
       uses: actions/download-artifact@v2
@@ -80,7 +81,7 @@ jobs:
       uses: azure/CLI@v1
       with:
         inlineScript: |
-            az storage blob upload-batch --account-name ${{env.AZURE_STORAGE_NAME}} --auth-mode key -d '$web' -s ./app
+            az storage blob upload-batch --account-name ${{env.AZURE_STORAGE_NAME_PROD}} --auth-mode key -d '$web' -s ./app
             
     - name: logout
       run: |
@@ -96,7 +97,7 @@ jobs:
     - name: Azure login
       uses: azure/login@v1
       with:
-          creds: ${{ env.AZURE_CREDS }}
+          creds: ${{ env.AZURE_CREDS_DEV }}
         
     - name: download    
       uses: actions/download-artifact@v2
@@ -112,7 +113,7 @@ jobs:
       uses: azure/CLI@v1
       with:
         inlineScript: |
-            az storage blob upload-batch --account-name ${{env.AZURE_STORAGE_NAME}} --auth-mode key -d '$web' -s ./app
+            az storage blob upload-batch --account-name ${{env.AZURE_STORAGE_NAME_DEV}} --auth-mode key -d '$web' -s ./app
             
     - name: logout
       run: |
