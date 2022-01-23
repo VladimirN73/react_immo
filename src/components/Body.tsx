@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { TextField, MaskedTextField } from "@fluentui/react";
+import { TextField } from "@fluentui/react";
 
 export interface IRequestFormProps {}
 
