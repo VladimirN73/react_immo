@@ -1,9 +1,15 @@
-import './App.css';
+import "./App.css";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+import BodyElement from "./components/Body";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 function App() {
   return (
     <div className="App">
-      v 0.0.3 is running
+      <Header />
+      <BodyElement />
+      <Footer />
     </div>
   );
 }

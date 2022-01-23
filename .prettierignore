@@ -1,0 +1,5 @@
+# Ignore artifacts: 
+models
+
+# Ignore all HTML files:
+*.html 
