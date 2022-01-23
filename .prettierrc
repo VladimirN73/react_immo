@@ -7,7 +7,7 @@
       "options": {
         "tabWidth": 2,
         "endOfLine": "crlf",
-        "printWidth": 90,
+        "printWidth": 100,
         "semi": true
       }
     }
