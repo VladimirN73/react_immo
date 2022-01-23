@@ -8,7 +8,6 @@ function App() {
   return (
     <div className="App">
       <Header />
-      v 0.0.5 is running
       <BodyElement />
       <Footer />
     </div>

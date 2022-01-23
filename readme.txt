@@ -20,6 +20,10 @@ npm start
 
 ----------------------------
 History (newest on top)
+23.01.22
+npm add @fluentui/react
+npm add react-router-dom
+
 15.01.22 
 review https://www.youtube.com/watch?v=HMP5e5utTwg
 npm install bootstrap
