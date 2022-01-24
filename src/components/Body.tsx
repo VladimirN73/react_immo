@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { TextField } from "@fluentui/react";
+import { TextField, DefaultButton } from "@fluentui/react";
 
 export interface IRequestFormProps {}
 
@@ -14,6 +14,10 @@ export interface IBodyState {
   eigenkapital: string;
   kreditProzent: string;
   tilgingProzent: number;
+  wg1?: number;
+  wg2?: number;
+  miete: string;
+  nk?: number;
 }
 
 export default class BodyElement extends React.Component<IRequestFormProps, IBodyState> {
@@ -24,11 +28,15 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
       wohnungspreis: "",
       stellplatzpreis: "",
       nebenkosten: 0,
-      nebenkostenProzent: 7,
+      nebenkostenProzent: 9,
       kaufsumme: 0,
       eigenkapital: "130.000",
       kreditProzent: "1,2",
       tilgingProzent: 1,
+      // wg1: 0,
+      // wg2: 0,
+      miete: "",
+      // nk: 0,
     };
   }
 
@@ -97,6 +105,19 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
     return ret;
   }
 
+  private calculateCashflow(): number {
+    const kreditProMonat = this.calculateKreditMonat();
+
+    let ret =
+      +this.formatRemovePoints(this.state.miete) +
+      (this.state.nk ? this.state.nk : 0) -
+      kreditProMonat -
+      (this.state.wg1 ? this.state.wg1 : 0) -
+      (this.state.wg2 ? this.state.wg2 : 0);
+
+    return ret;
+  }
+
   private formatRemovePoints(val: string): string {
     const ret = val.replace(".", "");
     return ret;
@@ -144,6 +165,7 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
               <TextField
                 id="Stellplatz"
                 name="Stellplatz"
+                placeholder="Stellplatzpreis"
                 style={{ textAlign: "right" }}
                 onChange={(e) => {
                   const val = (e.target as any).value as string;
@@ -151,18 +173,37 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
                   const temp = this.formatA(val);
                   this.setState({ stellplatzpreis: temp });
                 }}
-                placeholder="Stellplatzpreis"
                 value={this.state.stellplatzpreis ?? ""}
               />
             </div>
           </div>
 
           <div className="row mt-2">
-            <div className="col-2">
-              <label>NK%</label>
+            <div className="col-3">
+              <label>NK % €</label>
             </div>
 
-            <div className="col-2">
+            <div className="col-1" style={{ textAlign: "right" }}>
+              <DefaultButton
+                style={{ padding: "0px", minWidth: "40px" }}
+                onClick={() => {
+                  let val = 7;
+                  if (this.state.nebenkostenProzent === 7) {
+                    val = 9;
+                  }
+                  this.setState({ nebenkostenProzent: val });
+                }}
+              >
+                {" "}
+                {this.state.nebenkostenProzent === 7 && "+"}
+                {this.state.nebenkostenProzent !== 7 && "-"}
+              </DefaultButton>
+            </div>
+
+            <div
+              className="col-2"
+              style={{ textAlign: "right", paddingLeft: "25px", paddingRight: "0px" }}
+            >
               <TextField
                 id="NebenkostenProzent"
                 name="NebenkostenProzent"
@@ -176,9 +217,6 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
               />
             </div>
 
-            <div className="col-2">
-              <label>NK</label>
-            </div>
             <div className="col-6">
               <TextField
                 id="Nebenkosten"
@@ -285,6 +323,110 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
               />
             </div>
           </div>
+
+          <div className="row mt-2">
+            <div className="col-6">
+              <label>WG 1 und 2</label>
+            </div>
+
+            <div className="col-3">
+              <TextField
+                id="wg1"
+                name="wg1"
+                placeholder="WG1"
+                type="number"
+                style={{ textAlign: "right" }}
+                onChange={(e) => {
+                  const val = (e.target as any).value as number;
+                  console.log(val);
+                  this.setState({ wg1: val });
+                }}
+                value={this.state.wg1 + ""}
+              />
+            </div>
+
+            <div className="col-3">
+              <TextField
+                id="wg2"
+                name="wg2"
+                placeholder="WG2"
+                type="number"
+                style={{ textAlign: "right" }}
+                onChange={(e) => {
+                  const val = (e.target as any).value as number;
+                  console.log(val);
+                  this.setState({ wg2: val });
+                }}
+                value={this.state.wg2 + ""}
+              />
+            </div>
+          </div>
+
+          <hr></hr>
+
+          <div className="row mt-2">
+            <div className="col-6">
+              <label>Miete und NK</label>
+            </div>
+
+            <div className="col-3">
+              <TextField
+                id="miete"
+                name="miete"
+                placeholder="Miete"
+                style={{ textAlign: "right" }}
+                onChange={(e) => {
+                  const val = (e.target as any).value as string;
+                  console.log(val);
+                  const temp = this.formatA(val);
+                  this.setState({ miete: temp });
+                }}
+                value={this.state.miete ?? ""}
+              />
+            </div>
+
+            <div className="col-3">
+              <TextField
+                id="nk"
+                name="nk"
+                placeholder="NK"
+                // style={{ textAlign: "right" }}
+                // type="number"
+                // onChange={(e) => {
+                //   const val = (e.target as any).value as number;
+                //   console.log(val);
+                //   this.setState({ nk: val });
+                // }}
+                // value={this.state.nk + ""}
+                readOnly={true}
+                style={{ textAlign: "right", background: "whitesmoke" }}
+                value={this.state.wg2 ? this.state.wg2 + "" : ""}
+              />
+            </div>
+          </div>
+
+          <hr></hr>
+
+          <div className="row mt-3">
+            <div className="col-6">
+              <label>Cashflow</label>
+            </div>
+            <div className="col-6">
+              <TextField
+                id="Cashflow"
+                name="Cashflow"
+                readOnly={true}
+                style={{
+                  textAlign: "right",
+                  fontWeight: "bold",
+                  background: "whitesmoke",
+                  color: this.calculateCashflow() < 0 ? "red" : "green",
+                }}
+                value={this.formatA(this.calculateCashflow() + "")}
+              />
+            </div>
+          </div>
+          <hr></hr>
         </div>
       </div>
     );

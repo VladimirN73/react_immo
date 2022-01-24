@@ -21,6 +21,9 @@ npm start
 
 ----------------------------
 History (newest on top)
+24.01.22
+add Miete & Cashflow
+
 23.01.22
 npm add @fluentui/react
 npm add react-router-dom
