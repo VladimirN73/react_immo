@@ -11,8 +11,8 @@ export interface IBodyState {
   nebenkosten: number;
   nebenkostenProzent: number;
   kaufsumme: number;
-  eigenkapital: number;
-  kreditProzent: number;
+  eigenkapital: string;
+  kreditProzent: string;
   tilgingProzent: number;
 }
 
@@ -26,8 +26,8 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
       nebenkosten: 0,
       nebenkostenProzent: 7,
       kaufsumme: 0,
-      eigenkapital: 130000,
-      kreditProzent: 1.2,
+      eigenkapital: "130.000",
+      kreditProzent: "1,2",
       tilgingProzent: 1,
     };
   }
@@ -46,22 +46,28 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
     this.setState({ nebenkosten: temp.nebenkosten, kaufsumme: temp.kaufsumme });
   }
 
+  private calculateWohnungPlusStellplatz(): number {
+    var temp: IBodyState = this.state;
+
+    const ret =
+      +this.formatRemovePoints(temp.wohnungspreis) + +this.formatRemovePoints(temp.stellplatzpreis);
+
+    return ret;
+  }
+
   private calculateNebenkosten(): number {
     var temp: IBodyState = this.state;
 
-    const WohnungPlusStellplatz = +temp.wohnungspreis + +temp.stellplatzpreis;
+    const WohnungPlusStellplatz = this.calculateWohnungPlusStellplatz();
 
-    const nebenkosten = Math.ceil((WohnungPlusStellplatz / 100) * temp.nebenkostenProzent);
+    const ret = Math.ceil((WohnungPlusStellplatz / 100) * temp.nebenkostenProzent);
 
-    return nebenkosten;
+    return ret;
   }
 
   private calculateSumme(): number {
-    var temp: IBodyState = this.state;
-
+    const WohnungPlusStellplatz = this.calculateWohnungPlusStellplatz();
     const nebenkosten = this.calculateNebenkosten();
-
-    const WohnungPlusStellplatz = +temp.wohnungspreis + +temp.stellplatzpreis;
 
     const ret = WohnungPlusStellplatz + nebenkosten;
 
@@ -71,7 +77,9 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
   private calculateKredit(): number {
     const kosten = this.calculateSumme();
 
-    const ret = kosten - this.state.eigenkapital;
+    let ret = kosten - +this.formatRemovePoints(this.state.eigenkapital);
+
+    if (ret < 0) ret = 0;
 
     return ret;
   }
@@ -79,10 +87,26 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
   private calculateKreditMonat(): number {
     const kredit = this.calculateKredit();
 
-    const prozent = this.state.kreditProzent + this.state.tilgingProzent;
+    // adapt weight: from 1,1 to 1.1
+    const kreditProzent = +this.state.kreditProzent.replace(",", ".");
+
+    const prozent = kreditProzent + this.state.tilgingProzent;
 
     const ret = Math.ceil(((kredit / 100) * prozent) / 12);
 
+    return ret;
+  }
+
+  private formatRemovePoints(val: string): string {
+    const ret = val.replace(".", "");
+    return ret;
+  }
+
+  private formatA(val: string): string {
+    const ret = val
+      .toString()
+      .replace(".", "")
+      .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ".");
     return ret;
   }
 
@@ -98,11 +122,13 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
               <TextField
                 id="Wohnung"
                 name="Wohnung"
-                //label="Wohnung"
+                style={{ textAlign: "right" }}
+                //type="number"
                 onChange={(e) => {
                   const val = (e.target as any).value as string;
                   console.log(val);
-                  this.setState({ wohnungspreis: val });
+                  const temp = this.formatA(val);
+                  this.setState({ wohnungspreis: temp });
                 }}
                 placeholder="Wohnungspreis"
                 value={this.state.wohnungspreis ?? ""}
@@ -118,13 +144,14 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
               <TextField
                 id="Stellplatz"
                 name="Stellplatz"
-                //label="Stellplatz"
+                style={{ textAlign: "right" }}
                 onChange={(e) => {
                   const val = (e.target as any).value as string;
                   console.log(val);
-                  this.setState({ stellplatzpreis: val });
+                  const temp = this.formatA(val);
+                  this.setState({ stellplatzpreis: temp });
                 }}
-                placeholder="stellplatzpreis"
+                placeholder="Stellplatzpreis"
                 value={this.state.stellplatzpreis ?? ""}
               />
             </div>
@@ -139,7 +166,6 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
               <TextField
                 id="NebenkostenProzent"
                 name="NebenkostenProzent"
-                //label="NK %"
                 placeholder="NK %"
                 onChange={(e) => {
                   const val = (e.target as any).value as string;
@@ -157,10 +183,10 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
               <TextField
                 id="Nebenkosten"
                 name="Nebenkosten"
-                //label="Nebenkosten"
                 readOnly={true}
                 placeholder="Nebenkosten"
-                value={this.calculateNebenkosten() + ""}
+                style={{ textAlign: "right", background: "whitesmoke" }}
+                value={this.formatA(this.calculateNebenkosten() + "")}
               />
             </div>
           </div>
@@ -173,9 +199,9 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
               <TextField
                 id="Kaufsumme"
                 name="Kaufsumme"
-                //label="Kaufsumme"
                 readOnly={true}
-                value={this.calculateSumme() + ""}
+                style={{ textAlign: "right", background: "whitesmoke" }}
+                value={this.formatA(this.calculateSumme() + "")}
               />
             </div>
           </div>
@@ -188,12 +214,14 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
               <TextField
                 id="EK"
                 name="EK"
+                style={{ textAlign: "right" }}
                 onChange={(e) => {
                   const val = (e.target as any).value as string;
                   console.log(val);
-                  this.setState({ eigenkapital: +val });
+                  const temp = this.formatA(val);
+                  this.setState({ eigenkapital: temp });
                 }}
-                value={this.state.eigenkapital + "" ?? ""}
+                value={this.state.eigenkapital ?? ""}
               />
             </div>
           </div>
@@ -207,7 +235,8 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
                 id="Kredit"
                 name="Kredit"
                 readOnly={true}
-                value={this.calculateKredit() + ""}
+                style={{ textAlign: "right", fontWeight: "bold", background: "whitesmoke" }}
+                value={this.formatA(this.calculateKredit() + "")}
               />
             </div>
           </div>
@@ -224,7 +253,7 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
                 onChange={(e) => {
                   const val = (e.target as any).value as string;
                   console.log(val);
-                  this.setState({ kreditProzent: +val });
+                  this.setState({ kreditProzent: val });
                 }}
                 value={this.state.kreditProzent + "" ?? ""}
               />
@@ -251,6 +280,7 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
                 id="kreditMonat"
                 name="kreditMonat"
                 readOnly={true}
+                style={{ textAlign: "right", background: "whitesmoke" }}
                 value={this.calculateKreditMonat() + ""}
               />
             </div>

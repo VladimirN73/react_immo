@@ -1,10 +1,11 @@
 TODO
-* select CSS (bootstrap?)  https://react-bootstrap.github.io/getting-started/introduction
+* react on ENTER as on TAB, i.e. go to the next field
 * add debug pages
 * add PWA
 * git action ci_cd uses template for deployment
 
 Done
+* select CSS (bootstrap?)  https://react-bootstrap.github.io/getting-started/introduction
 * add git actions (CI & CD) -- done
 * automated deploy to azure (storage / static web site)
 * add azure hosting
