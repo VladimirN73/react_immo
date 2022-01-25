@@ -40,7 +40,30 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
     };
   }
 
-  public componentDidMount(): void {}
+  public componentDidMount(): void {
+    this.restoreStateFromLocalStorage();
+  }
+
+  public componentDidUpdate(): void {
+    let temp = JSON.stringify(this.state);
+    localStorage.setItem("temp", temp);
+    console.log("(componentDidUpdate) temp", temp);
+  }
+
+  private restoreStateFromLocalStorage() {
+    let temp = localStorage.getItem("temp");
+    console.log("(restoreStateFromLocalStorage) temp", temp);
+    if (!temp) {
+      return;
+    }
+
+    try {
+      const tempState = JSON.parse(temp ?? "");
+      this.setState({ ...tempState });
+    } catch (error) {
+      console.log("(restoreStateFromLocalStorage) error", error);
+    }
+  }
 
   private calculateSummeX(): void {
     var temp: IBodyState = this.state;
