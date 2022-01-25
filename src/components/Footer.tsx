@@ -20,6 +20,6 @@ export default class FooterElement extends React.Component<
   public componentDidMount(): void {}
 
   public render() {
-    return <div>Footer</div>;
+    return <div>...</div>;
   }
 }
