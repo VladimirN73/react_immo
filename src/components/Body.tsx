@@ -131,10 +131,49 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
     const kreditProMonat = this.calculateKreditMonat();
 
     let ret =
-      +this.formatRemovePoints(this.state.miete) +
+      +this.formatRemovePoints(this.state.miete) - 
       kreditProMonat -
       (this.state.wg1 ? this.state.wg1 : 0);
 
+    return ret;
+  }
+
+  private steuerBasisString(): string {
+    const kredit = this.calculateKredit();
+    const kreditProzent = +this.state.kreditProzent.replace(",", ".");
+    const kostenZinsen = Math.ceil(((kredit / 100) * kreditProzent) / 12);
+
+    const wohnungPlusStellplatz = this.calculateWohnungPlusStellplatz();
+    const abschreibung = Math.ceil(((wohnungPlusStellplatz / 100) * 2) / 12);
+
+    let ret: string =
+      "(" + (this.state.miete ?? "0") + "-" + kostenZinsen + "-" + abschreibung + ") * 40% =";
+    return ret;
+  }
+
+  private calculateSteuer(): number {
+    const kredit = this.calculateKredit();
+    const kreditProzent = +this.state.kreditProzent.replace(",", ".");
+    const kostenZinsen = Math.ceil(((kredit / 100) * kreditProzent) / 12);
+
+    const wohnungPlusStellplatz = this.calculateWohnungPlusStellplatz();
+    const abschreibung = Math.ceil(((wohnungPlusStellplatz / 100) * 2) / 12);
+
+    let ret: number = +this.formatRemovePoints(this.state.miete) - kostenZinsen - abschreibung;
+
+    if (ret > 0) {
+      ret = Math.ceil((ret / 100) * 40);
+    } else {
+      ret = 0;
+    }
+
+    return ret;
+  }
+
+  private calculateResultat(): number {
+    const cashflow = this.calculateCashflow();
+    const steuer = this.calculateSteuer();
+    let ret = cashflow - steuer;
     return ret;
   }
 
@@ -163,7 +202,7 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
               <TextField
                 id="Wohnung"
                 name="Wohnung"
-                style={{ textAlign: "right" }}
+                style={{ textAlign: "right", borderColor:"red" }}
                 //type="number"
                 onChange={(e) => {
                   const val = (e.target as any).value as string;
@@ -447,6 +486,58 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
             </div>
           </div>
           <hr></hr>
+          <div className="row mt-3">
+            <div className="col-2">
+              <label>Steuer</label>
+            </div>
+            <div className="col-7">
+              <TextField
+                id="SteuerBasis"
+                name="SteuerBasis"
+                readOnly={true}
+                style={{
+                  textAlign: "right",
+                  background: "whitesmoke",
+                }}
+                value={this.steuerBasisString()}
+              />
+            </div>
+            <div className="col-3">
+              <TextField
+                id="Steuer"
+                name="Steuer"
+                readOnly={true}
+                style={{
+                  textAlign: "right",
+                  fontWeight: "bold",
+                  background: "whitesmoke",
+                }}
+                value={this.calculateSteuer() + ""}
+              />
+            </div>
+          </div>
+
+          <hr></hr>
+
+          <div className="row mt-3">
+            <div className="col-6">
+              <label>Resultat</label>
+            </div>
+            <div className="col-6">
+              <TextField
+                id="Resultat"
+                name="Resultat"
+                readOnly={true}
+                style={{
+                  textAlign: "right",
+                  fontWeight: "bold",
+                  background: "whitesmoke",
+                  color: this.calculateResultat() < 0 ? "red" : "green",
+                }}
+                value={this.formatA(this.calculateResultat() + "")}
+              />
+            </div>
+          </div>
         </div>
       </div>
     );

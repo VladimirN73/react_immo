@@ -22,6 +22,7 @@ npm start
 ----------------------------
 History (newest on top)
 25.01.22
+add Steuer 6 Resultat
 add localStorage
 
 24.01.22
