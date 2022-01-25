@@ -17,7 +17,6 @@ export interface IBodyState {
   wg1?: number;
   wg2?: number;
   miete: string;
-  nk?: number;
 }
 
 export default class BodyElement extends React.Component<IRequestFormProps, IBodyState> {
@@ -133,10 +132,8 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
 
     let ret =
       +this.formatRemovePoints(this.state.miete) +
-      (this.state.nk ? this.state.nk : 0) -
       kreditProMonat -
-      (this.state.wg1 ? this.state.wg1 : 0) -
-      (this.state.wg2 ? this.state.wg2 : 0);
+      (this.state.wg1 ? this.state.wg1 : 0);
 
     return ret;
   }
