@@ -13,7 +13,7 @@ export interface IBodyState {
   kaufsumme: number;
   eigenkapital: string;
   kreditProzent: string;
-  tilgingProzent: number;
+  tilgungProzent: string;
   wg1?: number;
   wg2?: number;
   miete: string;
@@ -31,7 +31,7 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
       kaufsumme: 0,
       eigenkapital: "130.000",
       kreditProzent: "1,2",
-      tilgingProzent: 1,
+      tilgungProzent: "1",
       // wg1: 0,
       // wg2: 0,
       miete: "",
@@ -62,18 +62,6 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
     } catch (error) {
       console.log("(restoreStateFromLocalStorage) error", error);
     }
-  }
-
-  private calculateSummeX(): void {
-    var temp: IBodyState = this.state;
-
-    const WohnungPlusStellplatz = +temp.wohnungspreis + +temp.stellplatzpreis;
-
-    temp.nebenkosten = Math.ceil((WohnungPlusStellplatz / 100) * temp.nebenkostenProzent);
-
-    temp.kaufsumme = WohnungPlusStellplatz + temp.nebenkosten;
-
-    this.setState({ nebenkosten: temp.nebenkosten, kaufsumme: temp.kaufsumme });
   }
 
   private calculateWohnungPlusStellplatz(): number {
@@ -118,9 +106,10 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
     const kredit = this.calculateKredit();
 
     // adapt weight: from 1,1 to 1.1
-    const kreditProzent = +this.state.kreditProzent.replace(",", ".");
+    const kreditProzent = this.kreditProzent();
+    const tilgungProzent = this.tilgungProzent();
 
-    const prozent = kreditProzent + this.state.tilgingProzent;
+    const prozent = kreditProzent + tilgungProzent;
 
     const ret = Math.ceil(((kredit / 100) * prozent) / 12);
 
@@ -131,7 +120,7 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
     const kreditProMonat = this.calculateKreditMonat();
 
     let ret =
-      +this.formatRemovePoints(this.state.miete) - 
+      +this.formatRemovePoints(this.state.miete) -
       kreditProMonat -
       (this.state.wg1 ? this.state.wg1 : 0);
 
@@ -140,7 +129,7 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
 
   private steuerBasisString(): string {
     const kredit = this.calculateKredit();
-    const kreditProzent = +this.state.kreditProzent.replace(",", ".");
+    const kreditProzent = this.kreditProzent();
     const kostenZinsen = Math.ceil(((kredit / 100) * kreditProzent) / 12);
 
     const wohnungPlusStellplatz = this.calculateWohnungPlusStellplatz();
@@ -153,7 +142,7 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
 
   private calculateSteuer(): number {
     const kredit = this.calculateKredit();
-    const kreditProzent = +this.state.kreditProzent.replace(",", ".");
+    const kreditProzent = this.kreditProzent();
     const kostenZinsen = Math.ceil(((kredit / 100) * kreditProzent) / 12);
 
     const wohnungPlusStellplatz = this.calculateWohnungPlusStellplatz();
@@ -177,15 +166,30 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
     return ret;
   }
 
+  private kreditProzent(): number {
+    const ret = this.toNumber(this.state.kreditProzent);
+    return ret;
+  }
+
+  private tilgungProzent(): number {
+    const ret = this.toNumber(this.state.tilgungProzent);
+    return ret;
+  }
+
+  private toNumber(val: string): number {
+    const ret = +val.replace(",", ".");
+    return ret;
+  }
+
   private formatRemovePoints(val: string): string {
-    const ret = val.replace(".", "");
+    const ret = val.replaceAll(".", "");
     return ret;
   }
 
   private formatA(val: string): string {
     const ret = val
       .toString()
-      .replace(".", "")
+      .replaceAll(".", "")
       .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ".");
     return ret;
   }
@@ -202,7 +206,7 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
               <TextField
                 id="Wohnung"
                 name="Wohnung"
-                style={{ textAlign: "right", borderColor:"red" }}
+                style={{ textAlign: "right", borderColor: "red" }}
                 //type="number"
                 onChange={(e) => {
                   const val = (e.target as any).value as string;
@@ -272,7 +276,9 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
                   console.log(val);
                   this.setState({ nebenkostenProzent: +val });
                 }}
-                value={this.state.nebenkostenProzent + "" ?? ""}
+                value={
+                  this.state.nebenkostenProzent === 0 ? "" : this.state.nebenkostenProzent + ""
+                }
               />
             </div>
 
@@ -347,6 +353,7 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
               <TextField
                 id="kreditProzent"
                 name="kreditProzent"
+                placeholder="K%"
                 onChange={(e) => {
                   const val = (e.target as any).value as string;
                   console.log(val);
@@ -360,12 +367,13 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
               <TextField
                 id="tilgungProzent"
                 name="tilgungProzent"
+                placeholder="T%"
                 onChange={(e) => {
                   const val = (e.target as any).value as string;
                   console.log(val);
-                  this.setState({ tilgingProzent: +val });
+                  this.setState({ tilgungProzent: val });
                 }}
-                value={this.state.tilgingProzent + "" ?? ""}
+                value={this.state.tilgungProzent + "" ?? ""}
               />
             </div>
 
@@ -378,7 +386,7 @@ export default class BodyElement extends React.Component<IRequestFormProps, IBod
                 name="kreditMonat"
                 readOnly={true}
                 style={{ textAlign: "right", background: "whitesmoke" }}
-                value={this.calculateKreditMonat() + ""}
+                value={this.formatA(this.calculateKreditMonat() + "")}
               />
             </div>
           </div>
