@@ -21,8 +21,11 @@ npm start
 
 ----------------------------
 History (newest on top)
+08.02.22
+add serviceWorker
+
 25.01.22
-add Steuer 6 Resultat
+add Steuer & Resultat
 add localStorage
 
 24.01.22
